@@ -11,11 +11,11 @@ export const UserProvider = ({ children }) => {
     useEffect(() => {
         document.body.className = theme;
         if (theme === 'dark') {
-            document.documentElement.style.setProperty('--color-background', '#09090b');
+            document.documentElement.style.setProperty('--color-bg', '#09090b');
             document.documentElement.style.setProperty('--color-surface', '#18181b');
             document.documentElement.style.setProperty('--color-text', '#ffffff');
         } else {
-            document.documentElement.style.setProperty('--color-background', '#f8fafc');
+            document.documentElement.style.setProperty('--color-bg', '#f8fafc');
             document.documentElement.style.setProperty('--color-surface', '#ffffff');
             document.documentElement.style.setProperty('--color-text', '#0f172a');
         }
@@ -35,13 +35,14 @@ export const UserProvider = ({ children }) => {
         level: 4,
         xp: 350,
         xpToNextLevel: 1000,
-        streak: 3
+        streak: 3,
+        stepsGoal: 10000
     });
 
     // Default Logs
     const initialLogs = [
-        { id: 1, type: 'meal', name: 'Oatmeal & Berries', cal: 350, protein: 12, carbs: 60, fat: 6, time: '08:30 AM', category: 'Breakfast', notes: '' },
-        { id: 2, type: 'meal', name: 'Grilled Chicken Salad', cal: 450, protein: 45, carbs: 12, fat: 20, time: '12:30 PM', category: 'Lunch', notes: '' },
+        { id: 1, type: 'meal', name: 'Oatmeal & Berries', cal: 350, protein: 12, carbs: 60, fat: 6, time: '08:30 AM', category: 'Breakfast', notes: '', status: 'eaten' },
+        { id: 2, type: 'meal', name: 'Grilled Chicken Salad', cal: 450, protein: 45, carbs: 12, fat: 20, time: '12:30 PM', category: 'Lunch', notes: '', status: 'eaten' },
         { id: 3, type: 'workout', name: 'Morning Jog', duration: 30, intensity: 'Medium', cal: 240, time: '07:00 AM' }
     ];
 
@@ -60,6 +61,7 @@ export const UserProvider = ({ children }) => {
         waterGoal: 2.5,
         waterConsumed: 1.2,
         burned: 240, // From Mock Workout
+        steps: 4500, // Mock steps
         lastWeighIn: null
     };
 
@@ -75,27 +77,59 @@ export const UserProvider = ({ children }) => {
         { date: 'Sun', weight: 71.2 },
     ]);
 
+    const [vitamins, setVitamins] = useState([
+        { id: 1, name: 'Multivitamin', time: '08:00', taken: false },
+        { id: 2, name: 'Vitamin D', time: '08:00', taken: false },
+        { id: 3, name: 'Magnesium', time: '21:00', taken: false }
+    ]);
+
     // Actions
     const addMeal = (meal) => {
         const newMeal = {
             ...meal,
             id: Date.now(),
             type: 'meal',
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            time: meal.plannedTime || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             carbs: Number(meal.carbs) || 0,
-            fat: Number(meal.fat) || 0
+            fat: Number(meal.fat) || 0,
+            status: meal.status || 'eaten'
         };
         setLogs(prev => [newMeal, ...prev]);
 
+        if (newMeal.status === 'eaten') {
+            setStats(prev => ({
+                ...prev,
+                caloriesConsumed: prev.caloriesConsumed + (Number(newMeal.cal) || 0),
+                proteinConsumed: prev.proteinConsumed + (Number(newMeal.protein) || 0),
+                carbsConsumed: prev.carbsConsumed + (Number(newMeal.carbs) || 0),
+                fatConsumed: prev.fatConsumed + (Number(newMeal.fat) || 0)
+            }));
+            addXp(50);
+        }
+    };
+
+    const confirmMeal = (id) => {
+        const meal = logs.find(l => l.id === id);
+        if (!meal || meal.status === 'eaten') return;
+
+        setLogs(prev => prev.map(l => l.id === id ? { ...l, status: 'eaten' } : l));
+
         setStats(prev => ({
             ...prev,
-            caloriesConsumed: prev.caloriesConsumed + (Number(newMeal.cal) || 0),
-            proteinConsumed: prev.proteinConsumed + (Number(newMeal.protein) || 0),
-            carbsConsumed: prev.carbsConsumed + (Number(newMeal.carbs) || 0),
-            fatConsumed: prev.fatConsumed + (Number(newMeal.fat) || 0)
+            caloriesConsumed: prev.caloriesConsumed + (Number(meal.cal) || 0),
+            proteinConsumed: prev.proteinConsumed + (Number(meal.protein) || 0),
+            carbsConsumed: prev.carbsConsumed + (Number(meal.carbs) || 0),
+            fatConsumed: prev.fatConsumed + (Number(meal.fat) || 0)
         }));
-
         addXp(50);
+    };
+
+    const toggleVitamin = (id) => {
+        setVitamins(prev => prev.map(v => v.id === id ? { ...v, taken: !v.taken } : v));
+    };
+
+    const addVitamin = (vitamin) => {
+        setVitamins(prev => [...prev, { ...vitamin, id: Date.now(), taken: false }]);
     };
 
     const addWorkout = (workout) => {
@@ -154,10 +188,14 @@ export const UserProvider = ({ children }) => {
             theme,
             toggleTheme,
             addMeal,
+            confirmMeal,
             addWorkout,
             logWeight,
             updateUser,
-            spendXp
+            spendXp,
+            vitamins,
+            toggleVitamin,
+            addVitamin
         }}>
             {children}
         </UserContext.Provider>

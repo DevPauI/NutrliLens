@@ -1,19 +1,24 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, Camera, Settings, Activity, Utensils, MessageCircle, Gift } from 'lucide-react';
+import { Home, Camera, Settings, Activity, Utensils, MessageCircle, Gift, Pill } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const BottomNav = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
+    // Hide bottom nav on auth pages and scan page
+    if (['/', '/login', '/register', '/scan'].includes(location.pathname)) {
+        return null;
+    }
+
     const navItems = [
-        { icon: Settings, path: '/settings', label: 'Settings' },
         { icon: Home, path: '/dashboard', label: 'Home' },
         { icon: Utensils, path: '/log-food', label: 'Food' },
-        { icon: Camera, path: '/scan', label: 'Scan', isFab: true },
         { icon: Activity, path: '/fitness', label: 'Fitness' },
+        { icon: Camera, path: '/scan', label: 'Scan', isFab: true },
+        { icon: Pill, path: '/vitamins', label: 'Vitamins' },
         { icon: MessageCircle, path: '/coach', label: 'Coach' },
-        { icon: Gift, path: '/rewards', label: 'Shop' }
+        { icon: Settings, path: '/settings', label: 'Settings' }
     ];
 
     return (

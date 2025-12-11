@@ -10,6 +10,7 @@ const FoodLogHelper = () => {
     const [activeTab, setActiveTab] = useState('recent');
     const [searchTerm, setSearchTerm] = useState('');
     const [showManual, setShowManual] = useState(false);
+    const [plannedTime, setPlannedTime] = useState('12:00');
 
     // Manual Entry State
     const [manualFood, setManualFood] = useState({ name: '', cal: '', protein: '', carbs: '', fat: '' });
@@ -31,6 +32,13 @@ const FoodLogHelper = () => {
             { id: 7, name: 'Apple', cal: 95, protein: 0 },
             { id: 8, name: 'Rice (1 cup)', cal: 200, protein: 4 },
             { id: 9, name: 'Egg (Boiled)', cal: 70, protein: 6 }
+        ],
+        search: [
+            { id: 101, name: 'McDonalds Big Mac', cal: 563, protein: 26 },
+            { id: 102, name: 'Chicken & Spinach', cal: 350, protein: 45 },
+            { id: 103, name: 'Salmon & Rice', cal: 500, protein: 35 },
+            { id: 104, name: 'Protein Bar', cal: 220, protein: 20 },
+            { id: 105, name: 'Avocado Toast', cal: 300, protein: 8 }
         ]
     };
 
@@ -75,60 +83,10 @@ const FoodLogHelper = () => {
                 </div>
             </div>
 
-            {/* Manual Entry Toggle */}
-            <div
-                onClick={() => setShowManual(!showManual)}
-                style={{ background: '#27272a', padding: '16px', borderRadius: '16px', marginBottom: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
-            >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{ width: '40px', height: '40px', background: 'var(--color-primary)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <PenTool size={20} color="white" />
-                    </div>
-                    <div>
-                        <h3 style={{ margin: 0, fontSize: '1rem' }}>Enter new food</h3>
-                        <p style={{ margin: 0, fontSize: '0.8rem', color: '#a1a1aa' }}>Manually input calories</p>
-                    </div>
-                </div>
-                <PlusCircle size={20} color="var(--color-primary)" style={{ transform: showManual ? 'rotate(45deg)' : 'none', transition: 'transform 0.3s' }} />
-            </div>
-
-            {showManual && (
-                <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    style={{ background: '#18181b', border: '1px solid #27272a', borderRadius: '16px', padding: '16px', marginBottom: '24px', overflow: 'hidden' }}
-                >
-                    <div className="input-group">
-                        <label className="input-label">Food Name</label>
-                        <input value={manualFood.name} onChange={e => setManualFood({ ...manualFood, name: e.target.value })} placeholder="e.g. Avocado Toast" />
-                    </div>
-                    <div style={{ display: 'flex', gap: '12px' }}>
-                        <div className="input-group" style={{ flex: 1 }}>
-                            <label className="input-label">Calories</label>
-                            <input type="number" value={manualFood.cal} onChange={e => setManualFood({ ...manualFood, cal: e.target.value })} placeholder="0" />
-                        </div>
-                        <div className="input-group" style={{ flex: 1 }}>
-                            <label className="input-label">Protein (g)</label>
-                            <input type="number" value={manualFood.protein} onChange={e => setManualFood({ ...manualFood, protein: e.target.value })} placeholder="0" />
-                        </div>
-                    </div>
-                    <div style={{ display: 'flex', gap: '12px' }}>
-                        <div className="input-group" style={{ flex: 1 }}>
-                            <label className="input-label">Carbs (g)</label>
-                            <input type="number" value={manualFood.carbs} onChange={e => setManualFood({ ...manualFood, carbs: e.target.value })} placeholder="0" />
-                        </div>
-                        <div className="input-group" style={{ flex: 1 }}>
-                            <label className="input-label">Fat (g)</label>
-                            <input type="number" value={manualFood.fat} onChange={e => setManualFood({ ...manualFood, fat: e.target.value })} placeholder="0" />
-                        </div>
-                    </div>
-                    <button className="btn-primary" onClick={handleManualSubmit}>Log It</button>
-                </motion.div>
-            )}
 
             {/* Tabs */}
             <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', borderBottom: '1px solid #27272a' }}>
-                {['recent', 'favorites', 'common'].map((tab) => (
+                {['recent', 'favorites', 'common', 'search'].map((tab) => (
                     <div
                         key={tab}
                         onClick={() => setActiveTab(tab)}
@@ -146,37 +104,156 @@ const FoodLogHelper = () => {
                 ))}
             </div>
 
-            {/* List */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {foods[activeTab].map((food, index) => (
-                    <motion.div
-                        key={food.id}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                        className="card"
-                        style={{ margin: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px' }}
-                    >
-                        <div>
-                            <p style={{ margin: 0, fontWeight: '600' }}>{food.name}</p>
-                            <p style={{ margin: 0, fontSize: '0.8rem', color: '#71717a' }}>{food.cal} kcal • {food.protein}g Prot</p>
-                        </div>
-                        <button
-                            onClick={() => handleAdd(food)}
-                            style={{
-                                background: 'rgba(16, 185, 129, 0.1)',
-                                color: 'var(--color-primary)',
-                                border: 'none',
-                                padding: '8px',
-                                borderRadius: '8px',
-                                cursor: 'pointer'
-                            }}
-                        >
-                            <PlusCircle size={20} />
-                        </button>
-                    </motion.div>
-                ))}
+            {/* Mode Toggle */}
+            <div style={{ display: 'flex', background: '#27272a', padding: '4px', borderRadius: '12px', marginBottom: '24px' }}>
+                <button
+                    onClick={() => setShowManual(false)} // Reuse state logic slightly or refactor, keeping simple for now
+                    style={{ flex: 1, padding: '8px', borderRadius: '8px', border: 'none', background: !showManual ? '#3f3f46' : 'transparent', color: 'white', fontWeight: !showManual ? 'bold' : 'normal', cursor: 'pointer' }}
+                >
+                    Log Items
+                </button>
+                <button
+                    onClick={() => setShowManual(true)}
+                    style={{ flex: 1, padding: '8px', borderRadius: '8px', border: 'none', background: showManual ? '#3f3f46' : 'transparent', color: 'white', fontWeight: showManual ? 'bold' : 'normal', cursor: 'pointer' }}
+                >
+                    Schedule
+                </button>
             </div>
+
+            {showManual ? (
+                <div style={{ animation: 'fadeIn 0.3s' }}>
+                    <h3 style={{ margin: '0 0 16px 0' }}>Plan Your Meals</h3>
+
+                    <div className="card" style={{ marginBottom: '24px' }}>
+                        <label className="input-label">Select Time</label>
+                        <input
+                            type="time"
+                            value={plannedTime}
+                            onChange={(e) => setPlannedTime(e.target.value)}
+                            style={{
+                                width: '100%',
+                                padding: '12px',
+                                background: '#27272a',
+                                border: '1px solid #3f3f46',
+                                borderRadius: '12px',
+                                color: 'white',
+                                fontSize: '1.2rem',
+                                marginBottom: '16px'
+                            }}
+                        />
+                        <p style={{ fontSize: '0.8rem', color: '#a1a1aa' }}>Pick a time, then tap "Plan" on any food below.</p>
+                    </div>
+
+                    {/* Search Input for Planner */}
+                    {activeTab === 'search' && (
+                        <div className="input-group" style={{ marginBottom: '16px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', background: '#27272a', borderRadius: '12px', padding: '0 12px' }}>
+                                <Search size={20} color="#71717a" />
+                                <input
+                                    placeholder="Search food database..."
+                                    style={{ border: 'none', background: 'transparent', padding: '12px', color: 'white', flex: 1, outline: 'none' }}
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Show Food List for Planning */}
+                    {/* Re-using the list but modifying the "Plan" button behavior to use the selected time */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        {(activeTab === 'search'
+                            ? foods.search.filter(f => f.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                            : foods[activeTab]
+                        ).map((food, index) => (
+                            <motion.div
+                                key={`plan-${food.id}`}
+                                className="card"
+                                style={{ margin: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px' }}
+                            >
+                                <div>
+                                    <p style={{ margin: 0, fontWeight: '600' }}>{food.name}</p>
+                                    <p style={{ margin: 0, fontSize: '0.8rem', color: '#71717a' }}>{food.cal} kcal</p>
+                                </div>
+                                <button
+                                    onClick={() => {
+                                        // Convert 24h time to 12h for display if needed, or keep as is.
+                                        // Simple formatting
+                                        let formattedTime = plannedTime;
+                                        try {
+                                            const [h, m] = plannedTime.split(':');
+                                            const date = new Date();
+                                            date.setHours(h);
+                                            date.setMinutes(m);
+                                            formattedTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                                        } catch (e) { console.error(e) }
+
+                                        addMeal({
+                                            ...food,
+                                            status: 'planned',
+                                            plannedTime: formattedTime,
+                                            category: 'Planned'
+                                        });
+                                        navigate('/dashboard');
+                                    }}
+                                    style={{
+                                        background: 'var(--color-primary)',
+                                        color: '#09090b',
+                                        border: 'none',
+                                        padding: '8px 16px',
+                                        borderRadius: '8px',
+                                        cursor: 'pointer',
+                                        fontWeight: 'bold'
+                                    }}
+                                >
+                                    Plan for {plannedTime}
+                                </button>
+                            </motion.div>
+                        ))}
+                    </div>
+                </div>
+            ) : (
+                <>
+                    {activeTab === 'search' && (
+                        <div className="input-group" style={{ marginBottom: '16px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', background: '#27272a', borderRadius: '12px', padding: '0 12px' }}>
+                                <Search size={20} color="#71717a" />
+                                <input
+                                    placeholder="Search food database..."
+                                    style={{ border: 'none', background: 'transparent', padding: '12px', color: 'white', flex: 1, outline: 'none' }}
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    {/* List */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        {(activeTab === 'search'
+                            ? foods.search.filter(f => f.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                            : foods[activeTab]
+                        ).map((food, index) => (
+                            <motion.div
+                                key={food.id}
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: index * 0.05 }}
+                                className="card"
+                                onClick={() => handleAdd(food)}
+                                whileTap={{ scale: 0.98 }}
+                                style={{ margin: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', cursor: 'pointer' }}
+                            >
+                                <div>
+                                    <p style={{ margin: 0, fontWeight: '600' }}>{food.name}</p>
+                                    <p style={{ margin: 0, fontSize: '0.8rem', color: '#71717a' }}>{food.cal} kcal • {food.protein}g Prot</p>
+                                </div>
+                                <PlusCircle size={20} color="var(--color-primary)" />
+                            </motion.div>
+                        ))}
+                    </div>
+                </>
+            )}
 
             <button
                 className="btn-primary"

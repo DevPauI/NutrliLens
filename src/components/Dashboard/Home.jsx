@@ -7,7 +7,7 @@ import { useState } from 'react';
 
 const Home = () => {
     const navigate = useNavigate();
-    const { user, stats, logs, logWeight } = useUser();
+    const { user, stats, logs, logWeight, confirmMeal } = useUser();
     const [showWeighIn, setShowWeighIn] = useState(!stats.lastWeighIn || stats.lastWeighIn !== new Date().toDateString());
     const [weightInput, setWeightInput] = useState('');
 
@@ -93,9 +93,9 @@ const Home = () => {
                         <span style={{ color: '#71717a', fontSize: '0.9rem' }}>/ {stats.caloriesGoal}</span>
                     </div>
                     <div style={{ display: 'flex', gap: '12px', fontSize: '0.8rem', color: '#a1a1aa' }}>
-                        <div><span style={{ color: '#3b82f6', fontWeight: 'bold' }}>{stats.proteinConsumed}</span>/{stats.proteinGoal}g Prot</div>
-                        <div><span style={{ color: '#10b981', fontWeight: 'bold' }}>{stats.carbsConsumed}</span>/{stats.carbsGoal}g Carb</div>
-                        <div><span style={{ color: '#f59e0b', fontWeight: 'bold' }}>{stats.fatConsumed}</span>/{stats.fatGoal}g Fat</div>
+                        <div><span style={{ color: '#3b82f6', fontWeight: 'bold' }}>{stats.proteinConsumed}</span>/<span style={{ color: '#3b82f6', fontWeight: 'bold' }}>{stats.proteinGoal}g</span> Protein</div>
+                        <div><span style={{ color: '#10b981', fontWeight: 'bold' }}>{stats.carbsConsumed}</span>/<span style={{ color: '#10b981', fontWeight: 'bold' }}>{stats.carbsGoal}g</span> Carb</div>
+                        <div><span style={{ color: '#f59e0b', fontWeight: 'bold' }}>{stats.fatConsumed}</span>/<span style={{ color: '#f59e0b', fontWeight: 'bold' }}>{stats.fatGoal}g</span> Fat</div>
                     </div>
                 </div>
 
@@ -141,33 +141,68 @@ const Home = () => {
                 </div>
             </div>
 
-            {/* Today's Meals */}
-            <h3 style={{ margin: '24px 0 16px 0' }}>Today's Meals</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {logs.filter(l => l.type === 'meal').map((meal) => (
-                    <motion.div
-                        key={meal.id}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="card"
-                        style={{ margin: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px' }}
-                    >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            {/* Mock Checkbox */}
-                            <div style={{ width: '24px', height: '24px', borderRadius: '50%', border: '2px solid var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <div style={{ width: '14px', height: '14px', borderRadius: '50%', background: 'var(--color-primary)' }} />
-                            </div>
-                            <div>
-                                <h4 style={{ margin: 0 }}>{meal.name}</h4>
-                                <p style={{ margin: 0, fontSize: '0.85rem', color: '#71717a' }}>{meal.cal} kcal • {meal.protein}g Prot</p>
-                            </div>
+            {/* Meal Sections */}
+            {[
+                { title: 'Planned Meals', data: logs.filter(l => l.type === 'meal' && l.status === 'planned'), isPlanned: true },
+                { title: 'Today\'s Meals', data: logs.filter(l => l.type === 'meal' && l.status !== 'planned'), isPlanned: false }
+            ].map(section => {
+                // Sort data by time
+                const sortedData = [...section.data].sort((a, b) => {
+                    const timeA = new Date('1970/01/01 ' + a.time).getTime();
+                    const timeB = new Date('1970/01/01 ' + b.time).getTime();
+                    return timeA - timeB;
+                });
+
+                return (
+                    <div key={section.title}>
+                        {sortedData.length > 0 && <h3 style={{ margin: '24px 0 16px 0' }}>{section.title}</h3>}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            {sortedData.map((meal) => (
+                                <motion.div
+                                    key={meal.id}
+                                    initial={{ opacity: 0, x: -10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    className="card"
+                                    style={{ margin: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', borderLeft: section.isPlanned ? '4px solid #f59e0b' : 'none' }}
+                                >
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                        {/* Checkbox / Info */}
+                                        {!section.isPlanned ? (
+                                            <div style={{ width: '24px', height: '24px', borderRadius: '50%', border: '2px solid var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                <div style={{ width: '14px', height: '14px', borderRadius: '50%', background: 'var(--color-primary)' }} />
+                                            </div>
+                                        ) : (
+                                            <div style={{ width: '24px', height: '24px', borderRadius: '50%', border: '2px dashed #71717a', display: 'flex', alignItems: 'center', justifyContent: 'center' }} />
+                                        )}
+
+                                        <div>
+                                            <h4 style={{ margin: 0 }}>{meal.name}</h4>
+                                            <p style={{ margin: 0, fontSize: '0.85rem', color: '#71717a' }}>{meal.cal} kcal • {meal.protein}g Prot</p>
+                                        </div>
+                                    </div>
+
+                                    {section.isPlanned ? (
+                                        <div style={{ textAlign: 'right' }}>
+                                            <span style={{ fontSize: '0.8rem', color: '#a1a1aa', display: 'block', marginBottom: '4px' }}>{meal.time}</span>
+                                            <button
+                                                // Mock confirmation action - always enabled for demo
+                                                onClick={() => confirmMeal(meal.id)}
+                                                style={{ background: 'var(--color-primary)', color: 'white', border: 'none', padding: '4px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 'bold' }}
+                                            >
+                                                Eat?
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#71717a' }}>
+                                            {meal.time}
+                                        </span>
+                                    )}
+                                </motion.div>
+                            ))}
                         </div>
-                        <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#71717a' }}>
-                            {meal.time}
-                        </span>
-                    </motion.div>
-                ))}
-            </div>
+                    </div>
+                );
+            })}
 
             {/* FAB Removed per user request */}
         </div>

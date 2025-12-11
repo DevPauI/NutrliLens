@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { ArrowLeft, TrendingUp, Activity, Calendar } from 'lucide-react';
@@ -6,7 +7,8 @@ import { motion } from 'framer-motion';
 
 const FitnessHub = () => {
     const navigate = useNavigate();
-    const { user, weightLog, logs } = useUser();
+    const { user, weightLog, logs, logWeight } = useUser();
+    const [newWeight, setNewWeight] = useState('');
     const workouts = logs.filter(l => l.type === 'workout');
 
     return (
@@ -44,17 +46,80 @@ const FitnessHub = () => {
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
                     <div>
                         <h3 style={{ margin: 0 }}>Weight Trend</h3>
-                        <p style={{ margin: 0, color: '#a1a1aa', fontSize: '0.9rem' }}>{user.weight} kg</p>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <p style={{ margin: 0, color: '#a1a1aa', fontSize: '0.9rem' }}>{user.weight} kg</p>
+                            {weightLog.length > 1 && (() => {
+                                const diff = weightLog[weightLog.length - 1].weight - weightLog[0].weight;
+                                const isGain = diff > 0;
+                                const color = isGain ? '#ef4444' : '#10b981'; // Green for loss, Red for gain
+                                return (
+                                    <span style={{ fontSize: '0.8rem', color: color, fontWeight: 'bold' }}>
+                                        {diff > 0 ? '+' : ''}{diff.toFixed(1)} kg
+                                    </span>
+                                );
+                            })()}
+                        </div>
+                        {/* Live Update Input */}
+                        <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                            <input
+                                type="number"
+                                placeholder="Update"
+                                value={newWeight}
+                                onChange={(e) => setNewWeight(e.target.value)}
+                                style={{
+                                    width: '80px',
+                                    padding: '4px 8px',
+                                    borderRadius: '8px',
+                                    border: '1px solid #3f3f46',
+                                    background: '#27272a',
+                                    color: 'white',
+                                    fontSize: '0.9rem'
+                                }}
+                            />
+                            <button
+                                onClick={() => {
+                                    if (newWeight) {
+                                        logWeight(newWeight);
+                                        setNewWeight('');
+                                    }
+                                }}
+                                style={{
+                                    background: 'var(--color-primary)',
+                                    color: 'black',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    padding: '4px 12px',
+                                    fontWeight: 'bold',
+                                    cursor: 'pointer',
+                                    fontSize: '0.8rem'
+                                }}
+                            >
+                                Ok
+                            </button>
+                        </div>
                     </div>
-                    <TrendingUp size={20} color="var(--color-primary)" />
+                    {/* Dynamic Icon Color */}
+                    {(() => {
+                        const diff = weightLog.length > 1 ? weightLog[weightLog.length - 1].weight - weightLog[0].weight : 0;
+                        return <TrendingUp size={20} color={diff > 0 ? '#ef4444' : '#10b981'} />;
+                    })()}
                 </div>
                 <div style={{ height: '200px', marginLeft: '-20px' }}>
                     <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={weightLog}>
                             <defs>
                                 <linearGradient id="colorWeight" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                                    {/* Dynamic Gradient */}
+                                    {(() => {
+                                        const diff = weightLog.length > 1 ? weightLog[weightLog.length - 1].weight - weightLog[0].weight : 0;
+                                        const color = diff > 0 ? '#ef4444' : '#10b981';
+                                        return (
+                                            <>
+                                                <stop offset="5%" stopColor={color} stopOpacity={0.3} />
+                                                <stop offset="95%" stopColor={color} stopOpacity={0} />
+                                            </>
+                                        );
+                                    })()}
                                 </linearGradient>
                             </defs>
                             <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#666' }} />
@@ -62,7 +127,12 @@ const FitnessHub = () => {
                                 contentStyle={{ background: '#18181b', border: 'none', borderRadius: '8px' }}
                                 itemStyle={{ color: '#fff' }}
                             />
-                            <Area type="monotone" dataKey="weight" stroke="#10b981" fillOpacity={1} fill="url(#colorWeight)" strokeWidth={3} />
+                            {/* Dynamic Stroke */}
+                            {(() => {
+                                const diff = weightLog.length > 1 ? weightLog[weightLog.length - 1].weight - weightLog[0].weight : 0;
+                                const color = diff > 0 ? '#ef4444' : '#10b981';
+                                return <Area type="monotone" dataKey="weight" stroke={color} fillOpacity={1} fill="url(#colorWeight)" strokeWidth={3} />;
+                            })()}
                         </AreaChart>
                     </ResponsiveContainer>
                 </div>

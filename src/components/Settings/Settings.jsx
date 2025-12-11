@@ -45,6 +45,24 @@ const Settings = () => {
                     <h2 style={{ margin: 0, fontSize: '1.2rem' }}>{user.name}</h2>
                     <p style={{ margin: 0, color: '#71717a' }}>Level {user.level} • {user.goal}</p>
                 </div>
+                <button
+                    onClick={() => navigate('/rewards')}
+                    style={{
+                        marginLeft: 'auto',
+                        background: 'rgba(245, 158, 11, 0.1)',
+                        color: '#f59e0b',
+                        border: 'none',
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer'
+                    }}
+                >
+                    <Gift size={20} />
+                </button>
             </div>
 
             <h3 style={{ fontSize: '0.9rem', color: '#71717a', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>General</h3>
@@ -127,9 +145,15 @@ const Settings = () => {
                                 <input type="password" placeholder="Leave empty to keep current" value={accountForm.newPassword} onChange={e => setAccountForm({ ...accountForm, newPassword: e.target.value })} />
                             </div>
                             <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
-                                <button className="btn-primary" onClick={handleUpdateAccount}>Save</button>
-                                <button style={{ background: '#ef44441a', color: '#ef4444', border: 'none', padding: '12px', borderRadius: '12px', flex: 1, fontWeight: '600' }}>
-                                    <Trash2 size={16} style={{ marginBottom: '-3px', marginRight: '4px' }} /> Delete Account
+                                <button
+                                    className="btn-primary"
+                                    onClick={handleUpdateAccount}
+                                    style={{ flex: 1, padding: '8px' }}
+                                >
+                                    Save
+                                </button>
+                                <button style={{ background: '#ef44441a', color: '#ef4444', border: 'none', padding: '8px', borderRadius: '12px', flex: 1, fontWeight: '600' }}>
+                                    <Trash2 size={16} style={{ marginBottom: '-3px', marginRight: '4px' }} /> Delete
                                 </button>
                             </div>
                         </motion.div>
