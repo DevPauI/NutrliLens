@@ -1,15 +1,18 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Zap, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Zap, CheckCircle, Plus, Camera } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useUser } from '../../context/UserContext';
 
 const CameraView = () => {
     const navigate = useNavigate();
+    const { addMeal } = useUser();
     const videoRef = useRef(null);
     const [stream, setStream] = useState(null);
     const [scanning, setScanning] = useState(false);
     const [result, setResult] = useState(null);
     const [error, setError] = useState(null);
+    const [note, setNote] = useState('');
 
     useEffect(() => {
         const startCamera = async () => {
@@ -45,7 +48,7 @@ const CameraView = () => {
             setScanning(false);
             setResult({
                 name: "Grilled Salmon Salad",
-                calories: 420,
+                cal: 420,  // Changed calories to cal to match context
                 protein: 35,
                 fat: 12,
                 carbs: 8
@@ -58,7 +61,14 @@ const CameraView = () => {
     };
 
     const handleAdd = () => {
-        navigate('/dashboard');
+        if (result) {
+            addMeal({
+                ...result,
+                category: 'Lunch', // Mock category logic
+                notes: note
+            });
+            navigate('/dashboard');
+        }
     };
 
     return (
@@ -161,7 +171,7 @@ const CameraView = () => {
 
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '24px' }}>
                             <div style={{ background: '#27272a', padding: '12px', borderRadius: '12px', textAlign: 'center' }}>
-                                <div style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{result.calories}</div>
+                                <div style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{result.cal}</div>
                                 <div style={{ fontSize: '0.7rem', color: '#a1a1aa' }}>kcal</div>
                             </div>
                             <div style={{ background: '#27272a', padding: '12px', borderRadius: '12px', textAlign: 'center' }}>
@@ -178,9 +188,27 @@ const CameraView = () => {
                             </div>
                         </div>
 
-                        <button className="btn-primary" onClick={handleAdd}>
-                            <CheckCircle size={20} /> Add to Log
-                        </button>
+                        <div style={{ marginBottom: '16px' }}>
+                            <textarea
+                                placeholder="Add notes (e.g. extra olive oil)..."
+                                value={note}
+                                onChange={(e) => setNote(e.target.value)}
+                                style={{ width: '100%', background: '#27272a', border: 'none', borderRadius: '12px', padding: '12px', color: 'white', fontFamily: 'inherit', resize: 'none' }}
+                                rows={2}
+                            />
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '12px' }}>
+                            <button
+                                style={{ flex: 1, background: '#27272a', border: 'none', borderRadius: '16px', color: 'white', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                                onClick={() => alert("Mock: Scanning for more angles...")}
+                            >
+                                <Camera size={20} /> Scan More
+                            </button>
+                            <button className="btn-primary" style={{ flex: 2 }} onClick={handleAdd}>
+                                <CheckCircle size={20} /> Add to Log
+                            </button>
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>

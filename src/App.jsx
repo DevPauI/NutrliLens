@@ -8,6 +8,7 @@ import AiCoach from './components/Coach/AiCoach';
 import FoodLogHelper from './components/Food/FoodLogHelper';
 import Settings from './components/Settings/Settings';
 import BottomNav from './components/Layout/BottomNav';
+import WorkoutLog from './components/Track/WorkoutLog';
 import { UserProvider } from './context/UserContext';
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
             <Route path="/scan" element={<CameraView />} />
             <Route path="/coach" element={<AiCoach />} />
             <Route path="/log-food" element={<FoodLogHelper />} />
+            <Route path="/log-workout" element={<WorkoutLog />} />
             <Route path="/settings" element={<Settings />} />
           </Routes>
           <BottomNav />
