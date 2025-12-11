@@ -12,7 +12,7 @@ const FoodLogHelper = () => {
     const [showManual, setShowManual] = useState(false);
 
     // Manual Entry State
-    const [manualFood, setManualFood] = useState({ name: '', cal: '', protein: '' });
+    const [manualFood, setManualFood] = useState({ name: '', cal: '', protein: '', carbs: '', fat: '' });
 
     const foods = {
         recent: [
@@ -50,6 +50,8 @@ const FoodLogHelper = () => {
             name: manualFood.name,
             cal: parseInt(manualFood.cal),
             protein: parseInt(manualFood.protein) || 0,
+            carbs: parseInt(manualFood.carbs) || 0,
+            fat: parseInt(manualFood.fat) || 0,
             category: 'Manual'
         });
         navigate('/dashboard');
@@ -108,6 +110,16 @@ const FoodLogHelper = () => {
                         <div className="input-group" style={{ flex: 1 }}>
                             <label className="input-label">Protein (g)</label>
                             <input type="number" value={manualFood.protein} onChange={e => setManualFood({ ...manualFood, protein: e.target.value })} placeholder="0" />
+                        </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '12px' }}>
+                        <div className="input-group" style={{ flex: 1 }}>
+                            <label className="input-label">Carbs (g)</label>
+                            <input type="number" value={manualFood.carbs} onChange={e => setManualFood({ ...manualFood, carbs: e.target.value })} placeholder="0" />
+                        </div>
+                        <div className="input-group" style={{ flex: 1 }}>
+                            <label className="input-label">Fat (g)</label>
+                            <input type="number" value={manualFood.fat} onChange={e => setManualFood({ ...manualFood, fat: e.target.value })} placeholder="0" />
                         </div>
                     </div>
                     <button className="btn-primary" onClick={handleManualSubmit}>Log It</button>

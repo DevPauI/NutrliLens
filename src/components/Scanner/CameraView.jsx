@@ -13,6 +13,8 @@ const CameraView = () => {
     const [result, setResult] = useState(null);
     const [error, setError] = useState(null);
     const [note, setNote] = useState('');
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [aiFeedback, setAiFeedback] = useState(null);
 
     useEffect(() => {
         const startCamera = async () => {
@@ -58,6 +60,22 @@ const CameraView = () => {
                 stream.getTracks().forEach(track => track.stop());
             }
         }, 2000);
+    };
+
+    const handleNoteAnalysis = () => {
+        setIsAnalyzing(true);
+        // Mock AI Delay
+        setTimeout(() => {
+            setIsAnalyzing(false);
+            // Mock Update based on "notes"
+            setResult(prev => ({
+                ...prev,
+                cal: prev.cal + 100, // e.g., added oil
+                fat: prev.fat + 10,
+                name: prev.name + " (Modified)"
+            }));
+            setAiFeedback("I've analyzed your notes and updated the macros. Added 100 calories for the extras.");
+        }, 1500);
     };
 
     const handleAdd = () => {
@@ -189,13 +207,24 @@ const CameraView = () => {
                         </div>
 
                         <div style={{ marginBottom: '16px' }}>
-                            <textarea
-                                placeholder="Add notes (e.g. extra olive oil)..."
-                                value={note}
-                                onChange={(e) => setNote(e.target.value)}
-                                style={{ width: '100%', background: '#27272a', border: 'none', borderRadius: '12px', padding: '12px', color: 'white', fontFamily: 'inherit', resize: 'none' }}
-                                rows={2}
-                            />
+                            <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                                <textarea
+                                    placeholder="Add notes (e.g. extra olive oil)..."
+                                    value={note}
+                                    onChange={(e) => setNote(e.target.value)}
+                                    style={{ flex: 1, background: '#27272a', border: 'none', borderRadius: '12px', padding: '12px', color: 'white', fontFamily: 'inherit', resize: 'none' }}
+                                    rows={2}
+                                />
+                                <button
+                                    onClick={handleNoteAnalysis}
+                                    disabled={!note}
+                                    style={{ background: '#3b82f6', border: 'none', borderRadius: '12px', width: '48px', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                >
+                                    <Zap size={20} />
+                                </button>
+                            </div>
+                            {isAnalyzing && <p style={{ color: '#3b82f6', fontSize: '0.9rem', margin: 0 }}>AI Analyzing changes...</p>}
+                            {aiFeedback && <p style={{ color: '#10b981', fontSize: '0.9rem', margin: 0 }}>{aiFeedback}</p>}
                         </div>
 
                         <div style={{ display: 'flex', gap: '12px' }}>

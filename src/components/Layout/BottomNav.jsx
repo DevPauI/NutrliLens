@@ -1,81 +1,82 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, Camera, Bot, Settings as SettingsIcon, PlusCircle } from 'lucide-react';
+import { Home, Camera, Settings, Activity, Utensils, MessageCircle, Gift } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const BottomNav = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Hide on Landing/Login/Register
-    if (['/', '/login', '/register'].includes(location.pathname)) return null;
-
-    const isActive = (path) => location.pathname === path;
+    const navItems = [
+        { icon: Settings, path: '/settings', label: 'Settings' },
+        { icon: Home, path: '/dashboard', label: 'Home' },
+        { icon: Utensils, path: '/log-food', label: 'Food' },
+        { icon: Camera, path: '/scan', label: 'Scan', isFab: true },
+        { icon: Activity, path: '/fitness', label: 'Fitness' },
+        { icon: MessageCircle, path: '/coach', label: 'Coach' },
+        { icon: Gift, path: '/rewards', label: 'Shop' }
+    ];
 
     return (
         <div style={{
             position: 'fixed',
             bottom: 0,
             left: 0,
-            width: '100%',
+            right: 0,
+            height: '80px',
             background: '#18181b',
             borderTop: '1px solid #27272a',
-            padding: '12px 24px 20px 24px',
             display: 'flex',
-            justifyContent: 'space-between',
+            justifyContent: 'space-around',
             alignItems: 'center',
-            zIndex: 90
+            zIndex: 100,
+            paddingBottom: '10px' // Safe area
         }}>
-            <button
-                onClick={() => navigate('/dashboard')}
-                style={{ background: 'none', border: 'none', color: isActive('/dashboard') ? 'var(--color-primary)' : '#71717a', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}
-            >
-                <Home size={24} />
-                <span style={{ fontSize: '0.7rem' }}>Home</span>
-            </button>
+            {navItems.map((item) => {
+                const isActive = location.pathname === item.path;
 
-            <button
-                onClick={() => navigate('/coach')}
-                style={{ background: 'none', border: 'none', color: isActive('/coach') ? 'var(--color-primary)' : '#71717a', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}
-            >
-                <Bot size={24} />
-                <span style={{ fontSize: '0.7rem' }}>Coach</span>
-            </button>
+                if (item.isFab) {
+                    return (
+                        <motion.div
+                            key={item.label}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => navigate(item.path)}
+                            style={{
+                                width: '56px',
+                                height: '56px',
+                                background: 'var(--color-primary)',
+                                borderRadius: '50%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                marginBottom: '24px',
+                                boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
+                                cursor: 'pointer',
+                                color: '#09090b'
+                            }}
+                        >
+                            <item.icon size={28} />
+                        </motion.div>
+                    );
+                }
 
-            {/* Middle FAB (Add/Scan) */}
-            <div style={{ position: 'relative', top: '-24px' }}>
-                <button
-                    onClick={() => navigate('/scan')}
-                    style={{
-                        width: '56px',
-                        height: '56px',
-                        borderRadius: '50%',
-                        background: 'var(--color-primary)',
-                        border: '4px solid #09090b',
-                        color: 'white',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        boxShadow: '0 4px 10px rgba(0,0,0,0.5)'
-                    }}
-                >
-                    <Camera size={24} />
-                </button>
-            </div>
-
-            <button
-                onClick={() => navigate('/log-food')}
-                style={{ background: 'none', border: 'none', color: isActive('/log-food') ? 'var(--color-primary)' : '#71717a', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}
-            >
-                <PlusCircle size={24} />
-                <span style={{ fontSize: '0.7rem' }}>Log</span>
-            </button>
-
-            <button
-                onClick={() => navigate('/settings')}
-                style={{ background: 'none', border: 'none', color: isActive('/settings') ? 'var(--color-primary)' : '#71717a', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}
-            >
-                <SettingsIcon size={24} />
-                <span style={{ fontSize: '0.7rem' }}>Settings</span>
-            </button>
+                return (
+                    <div
+                        key={item.label}
+                        onClick={() => navigate(item.path)}
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: '4px',
+                            cursor: 'pointer',
+                            color: isActive ? 'var(--color-primary)' : '#71717a'
+                        }}
+                    >
+                        <item.icon size={24} />
+                        <span style={{ fontSize: '0.7rem', fontWeight: isActive ? 'bold' : 'normal' }}>{item.label}</span>
+                    </div>
+                );
+            })}
         </div>
     );
 };

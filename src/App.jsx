@@ -6,9 +6,11 @@ import Home from './components/Dashboard/Home';
 import CameraView from './components/Scanner/CameraView';
 import AiCoach from './components/Coach/AiCoach';
 import FoodLogHelper from './components/Food/FoodLogHelper';
+import WorkoutLog from './components/Track/WorkoutLog';
+import FitnessHub from './components/Track/FitnessHub';
+import Rewards from './components/Gamification/Rewards';
 import Settings from './components/Settings/Settings';
 import BottomNav from './components/Layout/BottomNav';
-import WorkoutLog from './components/Track/WorkoutLog';
 import { UserProvider } from './context/UserContext';
 
 function App() {
@@ -25,6 +27,8 @@ function App() {
             <Route path="/coach" element={<AiCoach />} />
             <Route path="/log-food" element={<FoodLogHelper />} />
             <Route path="/log-workout" element={<WorkoutLog />} />
+            <Route path="/fitness" element={<FitnessHub />} />
+            <Route path="/rewards" element={<Rewards />} />
             <Route path="/settings" element={<Settings />} />
           </Routes>
           <BottomNav />
