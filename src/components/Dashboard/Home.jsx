@@ -141,31 +141,6 @@ const Home = () => {
                     <Plus size={16} /> Add Meal
                 </div>
             </div>
-
-            {/* FAB for Camera */}
-            <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => navigate('/scan')}
-                style={{
-                    position: 'fixed',
-                    bottom: '24px',
-                    left: 'calc(50% - 28px)',
-                    width: '56px',
-                    height: '56px',
-                    borderRadius: '50%',
-                    background: 'var(--color-primary)',
-                    border: 'none',
-                    boxShadow: '0 4px 20px rgba(16, 185, 129, 0.4)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    zIndex: 100,
-                    cursor: 'pointer'
-                }}
-            >
-                <Camera size={24} color="white" />
-            </motion.button>
         </div>
     );
 };
