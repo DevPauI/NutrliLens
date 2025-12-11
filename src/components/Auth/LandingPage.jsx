@@ -32,7 +32,7 @@ const LandingPage = () => {
                     }}>
                         <Activity color="white" size={32} />
                     </div>
-                    <h1 style={{ fontSize: '2.5rem', margin: 0, letterSpacing: '-1px' }}>NutrliLens</h1>
+                    <h1 style={{ fontSize: '2.5rem', margin: 0, letterSpacing: '-1px' }}>NutriLens</h1>
                 </div>
 
                 <h2 style={{

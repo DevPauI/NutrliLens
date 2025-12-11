@@ -56,7 +56,7 @@ const Registration = () => {
     return (
         <div className="page" style={{ paddingTop: '40px' }}>
             <header style={{ marginBottom: '32px' }}>
-                <h1 style={{ fontSize: '2rem', color: 'var(--color-primary)' }}>NutrliLens</h1>
+                <h1 style={{ fontSize: '2rem', color: 'var(--color-primary)' }}>NutriLens</h1>
                 <p>Your personal AI nutritionist</p>
             </header>
 
