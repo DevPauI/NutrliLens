@@ -146,53 +146,7 @@ const WorkoutLog = () => {
                 </motion.div>
             )}
 
-            {/* Steps & Calories Chart (Always Visible or below log form) */}
-            <div style={{ marginTop: '32px' }}>
-                <h3 style={{ marginBottom: '16px' }}>Steps & Burn</h3>
-                {(() => {
-                    const { stats, user } = useUser();
-                    // Mock steps from context
-                    const steps = stats.steps || 0;
-                    const goal = user.stepsGoal || 10000;
-                    const stepsBurn = Math.floor(steps * 0.04); // Approx 0.04 cal per step
 
-                    const stepsData = [
-                        { name: 'Steps', value: steps, color: '#3b82f6' },
-                        { name: 'Remaining', value: Math.max(0, goal - steps), color: '#27272a' }
-                    ];
-
-                    return (
-                        <div className="card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px' }}>
-                            <div>
-                                <h2 style={{ margin: 0, fontSize: '2rem' }}>{steps}</h2>
-                                <p style={{ margin: 0, color: '#a1a1aa', fontSize: '0.9rem' }}>steps today</p>
-                                <p style={{ marginTop: '8px', color: '#10b981', fontWeight: 'bold' }}>~{stepsBurn} kcal burned</p>
-                            </div>
-                            <div style={{ width: '100px', height: '100px' }}>
-                                {/* Using simple SVG for lighter weight than rechart sometimes or stick to rechart */}
-                                {/* Reusing common pie chart pattern if possible, but need imports. 
-                                     WorkoutLog.jsx does not have PieChart imported yet. Use SVG or simple ring. */}
-                                <svg viewBox="0 0 36 36" style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }}>
-                                    <path
-                                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                                        fill="none"
-                                        stroke="#27272a"
-                                        strokeWidth="4"
-                                    />
-                                    <path
-                                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                                        fill="none"
-                                        stroke="#3b82f6"
-                                        strokeWidth="4"
-                                        strokeDasharray={`${(steps / goal) * 100}, 100`}
-                                        strokeLinecap="round"
-                                    />
-                                </svg>
-                            </div>
-                        </div>
-                    );
-                })()}
-            </div>
 
         </div>
     );

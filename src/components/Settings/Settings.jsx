@@ -1,17 +1,40 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, User, Globe, Moon, Sun, ChevronRight, LogOut, CreditCard, Shield, Star, Trash2, Gift } from 'lucide-react';
+import { ArrowLeft, User, Globe, Moon, Sun, ChevronRight, LogOut, CreditCard, Shield, Star, Trash2, Gift, Target, Ruler } from 'lucide-react';
 import { useUser } from '../../context/UserContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Settings = () => {
     const navigate = useNavigate();
-    const { user, updateUser, theme, toggleTheme } = useUser();
+    const { user, updateUser, theme, toggleTheme, stats, updateStats, units, toggleUnits } = useUser();
 
     // UI State for sections
     const [showAccount, setShowAccount] = useState(false);
     const [showPayment, setShowPayment] = useState(false);
+    const [showGoals, setShowGoals] = useState(false);
     const [language, setLanguage] = useState('English');
+
+    // Goals Form
+    const [goalsForm, setGoalsForm] = useState({
+        cal: stats.caloriesGoal,
+        protein: stats.proteinGoal,
+        fat: stats.fatGoal,
+        carbs: stats.carbsGoal,
+        steps: user.stepsGoal,
+        weightGoal: user.goal // String "Lose 5kg", maybe we just keep it as string for now or editable
+    });
+
+    const handleUpdateGoals = () => {
+        updateStats({
+            caloriesGoal: parseInt(goalsForm.cal),
+            proteinGoal: parseInt(goalsForm.protein),
+            fatGoal: parseInt(goalsForm.fat),
+            carbsGoal: parseInt(goalsForm.carbs),
+            stepsGoal: parseInt(goalsForm.steps),
+            weightGoal: goalsForm.weightGoal
+        });
+        setShowGoals(false);
+    };
 
     // Forms
     const [accountForm, setAccountForm] = useState({
@@ -65,6 +88,69 @@ const Settings = () => {
                 </button>
             </div>
 
+            <h3 style={{ fontSize: '0.9rem', color: '#71717a', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>Preferences</h3>
+
+            {/* Goals Section */}
+            <div className="card" style={{ padding: 0, overflow: 'hidden', marginBottom: '24px' }}>
+                <div
+                    onClick={() => setShowGoals(!showGoals)}
+                    style={{ padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}
+                >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <Target size={20} /> <span style={{ fontWeight: '600' }}>My Goals</span>
+                    </div>
+                    <ChevronRight size={16} color="#71717a" style={{ transform: showGoals ? 'rotate(90deg)' : 'none', transition: 'transform 0.3s' }} />
+                </div>
+
+                <AnimatePresence>
+                    {showGoals && (
+                        <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            style={{ padding: '0 16px 16px 16px', borderTop: '1px solid #27272a' }}
+                        >
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '16px' }}>
+                                <div className="input-group">
+                                    <label className="input-label">Calories</label>
+                                    <input type="number" value={goalsForm.cal} onChange={e => setGoalsForm({ ...goalsForm, cal: e.target.value })} />
+                                </div>
+                                <div className="input-group">
+                                    <label className="input-label">Steps</label>
+                                    <input type="number" value={goalsForm.steps} onChange={e => setGoalsForm({ ...goalsForm, steps: e.target.value })} />
+                                </div>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+                                <div className="input-group">
+                                    <label className="input-label">Protein (g)</label>
+                                    <input type="number" value={goalsForm.protein} onChange={e => setGoalsForm({ ...goalsForm, protein: e.target.value })} />
+                                </div>
+                                <div className="input-group">
+                                    <label className="input-label">Carbs (g)</label>
+                                    <input type="number" value={goalsForm.carbs} onChange={e => setGoalsForm({ ...goalsForm, carbs: e.target.value })} />
+                                </div>
+                                <div className="input-group">
+                                    <label className="input-label">Fat (g)</label>
+                                    <input type="number" value={goalsForm.fat} onChange={e => setGoalsForm({ ...goalsForm, fat: e.target.value })} />
+                                </div>
+                            </div>
+                            <div className="input-group">
+                                <label className="input-label">Main Goal</label>
+                                <input type="text" value={goalsForm.weightGoal} onChange={e => setGoalsForm({ ...goalsForm, weightGoal: e.target.value })} placeholder="e.g. Lose 5kg" />
+                            </div>
+
+                            <button
+                                className="btn-primary"
+                                onClick={handleUpdateGoals}
+                                style={{ width: '100%', marginTop: '8px', padding: '12px' }}
+                            >
+                                Save Goals
+                            </button>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
+
             <h3 style={{ fontSize: '0.9rem', color: '#71717a', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>General</h3>
 
             {/* Visual Section */}
@@ -106,6 +192,43 @@ const Settings = () => {
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#71717a' }}>
                         {language} <ChevronRight size={16} />
+                    </div>
+                </div>
+
+                <div style={{ padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid #27272a' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <Ruler size={20} />
+                        <span>Units</span>
+                    </div>
+                    <div
+                        onClick={toggleUnits}
+                        style={{
+                            background: '#27272a',
+                            border: '1px solid #3f3f46',
+                            borderRadius: '8px',
+                            display: 'flex',
+                            overflow: 'hidden',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        <div style={{
+                            padding: '4px 8px',
+                            fontSize: '0.8rem',
+                            background: units === 'metric' ? 'var(--color-primary)' : 'transparent',
+                            color: units === 'metric' ? 'white' : '#71717a',
+                            fontWeight: units === 'metric' ? 'bold' : 'normal'
+                        }}>
+                            Metric
+                        </div>
+                        <div style={{
+                            padding: '4px 8px',
+                            fontSize: '0.8rem',
+                            background: units === 'imperial' ? 'var(--color-primary)' : 'transparent',
+                            color: units === 'imperial' ? 'white' : '#71717a',
+                            fontWeight: units === 'imperial' ? 'bold' : 'normal'
+                        }}>
+                            Imperial
+                        </div>
                     </div>
                 </div>
             </div>
@@ -194,6 +317,12 @@ const Settings = () => {
                                 </div>
                             </div>
                             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                                <button
+                                    onClick={() => alert("Redirecting to secure billing portal...")}
+                                    style={{ flex: '1 1 100%', padding: '12px', borderRadius: '12px', border: '1px solid #3f3f46', background: 'transparent', color: 'white', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                                >
+                                    <CreditCard size={16} /> Update Billing Info
+                                </button>
                                 <button style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid #ef4444', background: 'transparent', color: '#ef4444', fontWeight: '600', cursor: 'pointer' }}>
                                     Cancel Plan
                                 </button>

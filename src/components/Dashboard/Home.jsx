@@ -1,15 +1,16 @@
 import { useNavigate } from 'react-router-dom';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { Zap, Plus, ChevronRight, CheckCircle, Scale } from 'lucide-react';
+import { Zap, Plus, ChevronRight, CheckCircle, Scale, Trash2, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useUser } from '../../context/UserContext';
 import { useState } from 'react';
 
 const Home = () => {
     const navigate = useNavigate();
-    const { user, stats, logs, logWeight, confirmMeal } = useUser();
+    const { user, stats, logs, logWeight, confirmMeal, deleteLog, updateLogTime } = useUser();
     const [showWeighIn, setShowWeighIn] = useState(!stats.lastWeighIn || stats.lastWeighIn !== new Date().toDateString());
     const [weightInput, setWeightInput] = useState('');
+    const [editingId, setEditingId] = useState(null);
 
     // Macro Data for Ring Chart (Converted to Calories for Scale)
     const macroData = [
@@ -182,20 +183,62 @@ const Home = () => {
                                     </div>
 
                                     {section.isPlanned ? (
-                                        <div style={{ textAlign: 'right' }}>
-                                            <span style={{ fontSize: '0.8rem', color: '#a1a1aa', display: 'block', marginBottom: '4px' }}>{meal.time}</span>
+                                        <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                            {editingId === meal.id ? (
+                                                <input
+                                                    type="time"
+                                                    value={meal.time}
+                                                    onChange={(e) => updateLogTime(meal.id, e.target.value)}
+                                                    onBlur={() => setEditingId(null)}
+                                                    autoFocus
+                                                    style={{
+                                                        background: 'transparent',
+                                                        color: '#a1a1aa',
+                                                        border: '1px solid #3f3f46',
+                                                        borderRadius: '6px',
+                                                        padding: '2px 6px',
+                                                        fontSize: '0.8rem',
+                                                        cursor: 'pointer',
+                                                        width: '80px'
+                                                    }}
+                                                />
+                                            ) : (
+                                                <span style={{ fontSize: '0.8rem', color: '#a1a1aa' }}>{meal.time}</span>
+                                            )}
+
                                             <button
-                                                // Mock confirmation action - always enabled for demo
                                                 onClick={() => confirmMeal(meal.id)}
-                                                style={{ background: 'var(--color-primary)', color: 'white', border: 'none', padding: '4px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 'bold' }}
+                                                style={{ background: 'var(--color-primary)', color: 'white', border: 'none', padding: '6px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 'bold' }}
                                             >
-                                                Eat?
+                                                Add
                                             </button>
+                                            <div style={{ display: 'flex', gap: '4px' }}>
+                                                <button
+                                                    onClick={() => setEditingId(editingId === meal.id ? null : meal.id)}
+                                                    style={{ background: 'transparent', border: 'none', color: '#a1a1aa', padding: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                                                >
+                                                    <Clock size={18} />
+                                                </button>
+                                                <button
+                                                    onClick={() => deleteLog(meal.id)}
+                                                    style={{ background: 'transparent', border: 'none', color: '#ef4444', padding: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                                                >
+                                                    <Trash2 size={18} />
+                                                </button>
+                                            </div>
                                         </div>
                                     ) : (
-                                        <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#71717a' }}>
-                                            {meal.time}
-                                        </span>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                            <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#71717a' }}>
+                                                {meal.time}
+                                            </span>
+                                            <button
+                                                onClick={() => deleteLog(meal.id)}
+                                                style={{ background: 'transparent', border: 'none', color: '#ef4444', padding: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', opacity: 0.7 }}
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
                                     )}
                                 </motion.div>
                             ))}

@@ -59,7 +59,7 @@ const Vitamins = () => {
 
             {/* List */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {vitamins.map((vit) => (
+                {[...vitamins].sort((a, b) => a.time.localeCompare(b.time)).map((vit) => (
                     <motion.div
                         key={vit.id}
                         layout

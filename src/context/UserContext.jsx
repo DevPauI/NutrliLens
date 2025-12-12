@@ -40,10 +40,16 @@ export const UserProvider = ({ children }) => {
     });
 
     // Default Logs
+    // Default Logs
     const initialLogs = [
-        { id: 1, type: 'meal', name: 'Oatmeal & Berries', cal: 350, protein: 12, carbs: 60, fat: 6, time: '08:30 AM', category: 'Breakfast', notes: '', status: 'eaten' },
-        { id: 2, type: 'meal', name: 'Grilled Chicken Salad', cal: 450, protein: 45, carbs: 12, fat: 20, time: '12:30 PM', category: 'Lunch', notes: '', status: 'eaten' },
-        { id: 3, type: 'workout', name: 'Morning Jog', duration: 30, intensity: 'Medium', cal: 240, time: '07:00 AM' }
+        { id: 1, type: 'meal', name: 'Oatmeal & Berries', cal: 350, protein: 12, carbs: 60, fat: 6, time: '08:30 AM', date: 'Today', category: 'Breakfast', notes: '', status: 'eaten' },
+        { id: 2, type: 'meal', name: 'Grilled Chicken Salad', cal: 450, protein: 45, carbs: 12, fat: 20, time: '12:30 PM', date: 'Today', category: 'Lunch', notes: '', status: 'eaten' },
+        { id: 3, type: 'workout', name: 'Morning Jog', duration: 30, intensity: 'Medium', cal: 240, time: '07:00 AM', date: 'Today' },
+        // Mock Historical Workouts
+        { id: 101, type: 'workout', name: 'Upper Body Power', duration: 45, intensity: 'High', cal: 320, time: '06:00 PM', date: 'Yesterday' },
+        { id: 102, type: 'workout', name: 'HIIT Cardio', duration: 25, intensity: 'High', cal: 280, time: '07:30 AM', date: 'Yesterday' },
+        { id: 103, type: 'workout', name: 'Yoga Flow', duration: 60, intensity: 'Low', cal: 150, time: '08:00 PM', date: '2 Days Ago' },
+        { id: 104, type: 'workout', name: 'Leg Day', duration: 50, intensity: 'High', cal: 400, time: '05:30 PM', date: '3 Days Ago' }
     ];
 
     const [logs, setLogs] = useState(initialLogs);
@@ -124,6 +130,35 @@ export const UserProvider = ({ children }) => {
         addXp(50);
     };
 
+    const deleteLog = (id) => {
+        const log = logs.find(l => l.id === id);
+        if (!log) return;
+
+        // If it was a meal and confirmed eaten, refund stats
+        if (log.type === 'meal' && log.status === 'eaten') {
+            setStats(prev => ({
+                ...prev,
+                caloriesConsumed: Math.max(0, prev.caloriesConsumed - (Number(log.cal) || 0)),
+                proteinConsumed: Math.max(0, prev.proteinConsumed - (Number(log.protein) || 0)),
+                carbsConsumed: Math.max(0, prev.carbsConsumed - (Number(log.carbs) || 0)),
+                fatConsumed: Math.max(0, prev.fatConsumed - (Number(log.fat) || 0))
+            }));
+            // Optionally remove XP but that might be complex and user didn't ask explicitly. 
+            // Keeping XP for now as "penalty" logic is not defined.
+        } else if (log.type === 'workout') {
+            setStats(prev => ({
+                ...prev,
+                burned: Math.max(0, prev.burned - (Number(log.cal) || 0))
+            }));
+        }
+
+        setLogs(prev => prev.filter(l => l.id !== id));
+    };
+
+    const updateLogTime = (id, newTime) => {
+        setLogs(prev => prev.map(l => l.id === id ? { ...l, time: newTime } : l));
+    };
+
     const toggleVitamin = (id) => {
         setVitamins(prev => prev.map(v => v.id === id ? { ...v, taken: !v.taken } : v));
     };
@@ -133,7 +168,7 @@ export const UserProvider = ({ children }) => {
     };
 
     const addWorkout = (workout) => {
-        const newWorkout = { ...workout, id: Date.now(), type: 'workout', time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
+        const newWorkout = { ...workout, id: Date.now(), type: 'workout', time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), date: 'Today' };
         setLogs(prev => [newWorkout, ...prev]);
 
         setStats(prev => ({
@@ -179,6 +214,73 @@ export const UserProvider = ({ children }) => {
         setUser(prev => ({ ...prev, ...updates }));
     };
 
+    // Mock Step Log History
+    const [stepLog] = useState([
+        { day: 'Mon', steps: 6500 },
+        { day: 'Tue', steps: 8200 },
+        { day: 'Wed', steps: 10500 },
+        { day: 'Thu', steps: 7800 },
+        { day: 'Fri', steps: 9200 },
+        { day: 'Sat', steps: 12000 },
+        { day: 'Sun', steps: 4500 } // Today
+    ]);
+
+    // Body Measurements
+    const [bodyMeasurements, setBodyMeasurements] = useState({
+        waist: 81,
+        chest: 101,
+        arms: 35,
+        thighs: 56
+    });
+
+    const updateBodyMeasurements = (newMeasurements) => {
+        setBodyMeasurements(prev => ({ ...prev, ...newMeasurements }));
+    };
+
+    const updateStats = (newGoals) => {
+        setStats(prev => ({ ...prev, ...newGoals }));
+        // Also update user steps goal if present
+        if (newGoals.stepsGoal) {
+            setUser(prev => ({ ...prev, stepsGoal: newGoals.stepsGoal }));
+        }
+        if (newGoals.weightGoal) {
+            setUser(prev => ({ ...prev, goal: newGoals.weightGoal }));
+        }
+    };
+
+    // Unit System
+    const [units, setUnits] = useState('metric'); // 'metric' or 'imperial'
+
+    const toggleUnits = () => {
+        setUnits(prev => prev === 'metric' ? 'imperial' : 'metric');
+    };
+
+    // Helpers to get display value (Metric storage -> Display)
+    const getWeight = (kg) => {
+        if (!kg) return { value: 0, unit: units === 'metric' ? 'kg' : 'lbs' };
+        if (units === 'metric') return { value: kg.toFixed(1), unit: 'kg' };
+        return { value: (kg * 2.20462).toFixed(1), unit: 'lbs' };
+    };
+
+    const getLength = (cm) => {
+        if (!cm) return { value: 0, unit: units === 'metric' ? 'cm' : 'in' };
+        if (units === 'metric') return { value: cm, unit: 'cm' };
+        return { value: Math.round(cm / 2.54), unit: 'in' };
+    };
+
+    // Helpers to save input value (Input -> Metric storage)
+    const saveWeight = (inputVal) => {
+        const val = parseFloat(inputVal);
+        if (units === 'metric') return val;
+        return val / 2.20462;
+    };
+
+    const saveLength = (inputVal) => {
+        const val = parseFloat(inputVal);
+        if (units === 'metric') return val;
+        return val * 2.54;
+    };
+
     return (
         <UserContext.Provider value={{
             user,
@@ -195,7 +297,20 @@ export const UserProvider = ({ children }) => {
             spendXp,
             vitamins,
             toggleVitamin,
-            addVitamin
+            addVitamin,
+            stepLog,
+            bodyMeasurements,
+            updateBodyMeasurements,
+            updateStats,
+            units,
+            toggleUnits,
+            getWeight,
+            getLength,
+            saveWeight,
+            saveWeight,
+            saveLength,
+            deleteLog,
+            updateLogTime
         }}>
             {children}
         </UserContext.Provider>
